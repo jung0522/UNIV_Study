@@ -1,3 +1,4 @@
+/*
 package com.example.board.Service;
 
 import com.example.board.Dto.PostRequestDto;
@@ -74,3 +75,4 @@ public class PostService {
         postRepository.deleteById(id);
     }
 }
+*/

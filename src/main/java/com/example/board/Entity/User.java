@@ -3,11 +3,16 @@ package com.example.board.Entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+// toBuilder를 사용하려면 @Builder(toBuilder = true)로 설정해야 함
+// 기존 객체를 기반으로 해서 변경하고 싶은 필드만 바꾼 새 객체를 생
+@Builder(toBuilder = true)
 public class User {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -20,4 +25,13 @@ public class User {
 
     @Column
     private String profileImage;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<Post> posts = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<Like> likes = new HashSet<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Set<Scrap> scraps = new HashSet<>();
 }

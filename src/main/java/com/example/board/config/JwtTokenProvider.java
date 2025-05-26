@@ -3,17 +3,24 @@ package com.example.board.config;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
-
+import com.example.board.config.RedisConfig;
 import java.security.Key;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 /**
  * JWT 토큰 생성 및 검증을 담당하는 클래스.
  */
 @Component
+@RequiredArgsConstructor
 public class JwtTokenProvider {
+
+    // Redis
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -47,12 +54,21 @@ public class JwtTokenProvider {
     // 리프레시 토큰 생성
     public String createRefreshToken(String email) {
         Date now = new Date();
-        return Jwts.builder()
+        String refreshToken = Jwts.builder()
                 .setSubject(email)
                 .setIssuedAt(now)
                 .setExpiration(new Date(now.getTime() + REFRESH_TOKEN_VALIDITY))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+
+        // Redis에 저장 (key: email, value: refreshToken, expiration 설정)
+        redisTemplate.opsForValue().set(
+                email,
+                refreshToken,
+                REFRESH_TOKEN_VALIDITY,
+                TimeUnit.MILLISECONDS
+        );
+        return refreshToken;
     }
 
     // 토큰에서 이메일 추출
@@ -68,14 +84,19 @@ public class JwtTokenProvider {
     // 토큰 유효성 검증
     public boolean validateToken(String token) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(key)
-                    .build()
-                    .parseClaimsJws(token); // 검증 수행 (서명, 유효 기간 등)
-            return true;
-        } catch (JwtException | IllegalArgumentException e) {
-            // 유효하지 않은 토큰 (예외 처리)
-            return false;
-        }
+                Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
+                return true;
+            } catch (ExpiredJwtException e) {
+                return false; // 만료된 토큰
+            } catch (JwtException | IllegalArgumentException e) {
+                return false;
+            }
+    }
+    public boolean isRefreshTokenValid(String email, String refreshToken) {
+        String savedToken = (String) redisTemplate.opsForValue().get(email);
+        return savedToken != null && savedToken.equals(refreshToken) && validateToken(refreshToken);
+    }
+    public void deleteRefreshToken(String email) {
+        redisTemplate.delete(email);
     }
 }

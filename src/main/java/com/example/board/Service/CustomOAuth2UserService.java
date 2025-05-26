@@ -59,7 +59,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
 //            email = (String) kakaoAccount.get("email");
             // 이메일 하드코딩
-            email = "jjy1111202@kakao.com";
+            email = "jjy1111202@kakao3.com";
             nickname = (String) profile.get("nickname");
             profileImage = (String) profile.get("profile_image_url");
 
@@ -88,20 +88,26 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
 
         } else {
-            email = null;
-            nickname = null;
-            profileImage = null;
-            userNameAttributeName = null;
+//            email = null;
+//            nickname = null;
+//            profileImage = null;
+//            userNameAttributeName = null;
+            // registrationId의 예외
+            throw new OAuth2AuthenticationException("Unsupported provider: " + registrationId);
 
         }
 
         // DB에 사용자 정보 저장 또는 수정
         User user = userRepository.findByEmail(email)
-                .map(entity -> {
-                    entity.setNickname(nickname);
-                    entity.setProfileImage(profileImage);
-                    return userRepository.save(entity);
+                // 기존 사용자
+                .map(existingUser -> {
+                    User updatedUser = existingUser.toBuilder()
+                            .nickname(nickname)
+                            .profileImage(profileImage)
+                            .build();
+                    return userRepository.save(updatedUser);
                 })
+                // 새로운 사용자
                 .orElseGet(() -> userRepository.save(
                         User.builder()
                                 .email(email)
@@ -119,7 +125,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 //                userNameAttributeName
 //        );
 
-        // 반환할 사용자 객체 생성 (커스텀 OAuth2 사용자)
+//         반환할 사용자 객체 생성 (커스텀 OAuth2 사용자)
         return new CustomOAuth2User(
                 attributes,
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_USER")),

@@ -1,15 +1,16 @@
-/*
 package com.example.board.Dto;
 
 import java.time.LocalDateTime;
 import com.example.board.Entity.User;
-
-public record PostResponseDto(
+public record PostDto(
         Long id,
+        String writer,
         String title,
         String content,
-        String writer, // username
         LocalDateTime createdAt,
-        LocalDateTime updatedAt
-) {}
-*/
+        LocalDateTime updatedAt,
+        boolean isDeleted,
+        int likeCount,
+        int scrapCount
+) {
+}

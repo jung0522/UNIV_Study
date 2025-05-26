@@ -23,6 +23,7 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
                                         Authentication authentication) throws IOException {
 
+//     원래   String email = authentication.getName();
         // OAuth2 인증 성공 후 principal에서 사용자 정보 추출
 //        일반 로그인: UserDetails 객체
 //        OAuth2 로그인: OAuth2User 또는 우리가 만든 CustomOAuth2User
@@ -31,7 +32,12 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
 
         // JWT 토큰 생성
         String accessToken = jwtTokenProvider.createAccessToken(email);
+//        String refreshToken = jwtTokenProvider.createRefreshToken(email);
         String refreshToken = jwtTokenProvider.createRefreshToken(email);
+
+        // 구글 로그인 시 쿠키에 jwt 토큰 안 보여서 로그로 출력
+        System.out.println("accessToken: " + accessToken);
+        System.out.println("refreshToken: " +refreshToken);
 
         // 쿠키로 AccessToken 저장 (HttpOnly로 클라이언트 JS 접근 불가)
         Cookie accessCookie = new Cookie("accessToken", accessToken);

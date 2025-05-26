@@ -40,7 +40,7 @@ public class SecurityConfig {
 //        세션 기반이 아닌 REST API 서버에서, JWT를 사용하는 경우에도 일반적으로 CSRF를 비활성화
                 .authorizeHttpRequests(auth -> auth
                         // 로그인, 정적 리소스는 인증 없이 접근 허용
-                        .requestMatchers("/", "/login**", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/", "/login**","/token/refresh", "/logout", "/css/**", "/js/**").permitAll()
                         // 그 외의 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )

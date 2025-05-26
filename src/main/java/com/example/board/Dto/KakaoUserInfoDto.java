@@ -1,3 +1,4 @@
+/*
 package com.example.board.Dto;
 
 public record KakaoUserInfoDto(
@@ -7,3 +8,4 @@ public record KakaoUserInfoDto(
 
 
 }
+*/
