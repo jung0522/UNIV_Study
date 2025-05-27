@@ -35,12 +35,19 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf().disable()  // CSRF 보호 비활성화
+                // 스프링 시큐리티의 기본 로그아웃은 세션 기반이면 사용 충분
+                // 세션 무효화 (invalidateHttpSession(true))
+                // SecurityContext 정리
+                // logout URL 접근 시 로그아웃 처리
+                // 로그아웃 후 지정된 URL로 리디렉션 (logoutSuccessUrl())
+                .logout().disable() // ✅ 이 줄을 꼭 추가해야 커스텀 logout API가 작동함
 //        CSRF는 공격자가 사용자의 권한을 도용해 악의적인 요청을 보내는 공격 방식입니다
 //        Spring Security는 기본적으로 CSRF 보호를 활성화합니다.
 //        세션 기반이 아닌 REST API 서버에서, JWT를 사용하는 경우에도 일반적으로 CSRF를 비활성화
                 .authorizeHttpRequests(auth -> auth
                         // 로그인, 정적 리소스는 인증 없이 접근 허용
-                        .requestMatchers("/", "/login**","/token/refresh", "/logout", "/css/**", "/js/**").permitAll()
+                        .requestMatchers("/", "/login**", "/token/refresh", "/logout",
+                                "/post/**",  "/css/**", "/js/**").permitAll()
                         // 그 외의 모든 요청은 인증 필요
                         .anyRequest().authenticated()
                 )
@@ -56,6 +63,7 @@ public class SecurityConfig {
                                 .accessTokenResponseClient(authorizationCodeTokenResponseClient())
                         ) */
                 );
+
 
 
         // JWT 인증 필터 등록 - UsernamePasswordAuthenticationFilter 전에 위치

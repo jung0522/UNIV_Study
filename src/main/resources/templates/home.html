@@ -1,10 +1,17 @@
+<!-- src/main/resources/templates/home.html -->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>홈페이지</title>
+    <meta charset="UTF-8">
+    <title>Home</title>
 </head>
 <body>
-<h1>환영합니다!</h1>
-<p>로그인에 성공하셨습니다.</p>
+<h1>회원 정보</h1>
+<div>
+    <p><strong>닉네임:</strong> <span th:text="${user.nickname}"></span></p>
+    <p><strong>이메일:</strong> <span th:text="${user.email}"></span></p>
+    <p><strong>프로필 이미지:</strong></p>
+    <img th:src="${user.profileImage}" alt="프로필 이미지" style="width:150px;height:150px;border-radius:50%;">
+</div>
 </body>
 </html>

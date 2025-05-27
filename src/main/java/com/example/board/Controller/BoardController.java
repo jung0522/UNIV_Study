@@ -43,8 +43,9 @@ public class BoardController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePost(@PathVariable Long id) {
-        boardService.deletePost(id);
+    public ResponseEntity<Void> deletePost(@PathVariable Long id,
+                                           @AuthenticationPrincipal CustomUserDetails customUserDetails) {
+        boardService.deletePost(id, customUserDetails.getUser());
         return ResponseEntity.noContent().build();
     }
 }

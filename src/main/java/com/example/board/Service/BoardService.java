@@ -27,10 +27,11 @@ public class BoardService {
 
 
     public List<PostDto> getAllPosts() {
-        return postRepository.findAllWithLikeAndScrapCount()
+        return postRepository.findAll()
                 .stream()
-                .map(this::toDto)
+                .map(post -> toDto(post))
                 .collect(Collectors.toList());
+
     }
 
     public PostDto getPostById(Long id) {
@@ -47,26 +48,34 @@ public class BoardService {
                 .content(postDto.content())
                 .user(user)
                 .build();
-        return toDto(post);
+        postRepository.save(updatedPost);
+        return toDto(updatedPost);
     }
 
-    public void deletePost(Long id) {
+    public void deletePost(Long id, User user) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
-        post.setDeleted(true);
+
+        Post deletedPost = post.toBuilder()
+                .isDeleted(true)
+                .user(user)
+                .build();
+        postRepository.save(deletedPost);  // 변경된 삭제 상태 저장
     }
 
     private PostDto toDto(Post post) {
+        int likeCount = post.getLikes() == null ? 0 : post.getLikes().size();
+        int scrapCount = post.getScraps() == null ? 0 : post.getScraps().size();
         return new PostDto(
                 post.getId(),
                 post.getUser().getNickname(), // postDto 레코드의 Sting author
                 post.getTitle(),
                 post.getContent(),
+                post.isDeleted(),
                 post.getCreatedAt(),
                 post.getUpdatedAt(),
-                post.isDeleted(),
-                post.getLikes() != null ? post.getLikes().size() : 0,
-                post.getScraps() != null ? post.getScraps().size() : 0
+                likeCount,
+                scrapCount
         );
     }
 }
