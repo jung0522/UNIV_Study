@@ -26,12 +26,4 @@ public class User {
     @Column
     private String profileImage;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<Post> posts = new HashSet<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<Like> likes = new HashSet<>();
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<Scrap> scraps = new HashSet<>();
 }

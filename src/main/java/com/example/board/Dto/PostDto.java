@@ -7,10 +7,11 @@ public record PostDto(
         String writer,
         String title,
         String content,
+        boolean isDeleted,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        boolean isDeleted,
-        int likeCount,
-        int scrapCount
+        int likes,
+        int scraps
+
 ) {
 }

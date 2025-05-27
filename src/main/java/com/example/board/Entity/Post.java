@@ -46,11 +46,12 @@ public class Post {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
-    private Set<Like> likes = new HashSet<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostLike> likes = new ArrayList<>();
 
-    @OneToMany(mappedBy = "post", fetch = FetchType.LAZY)
-    private Set<Scrap> scraps = new HashSet<>();
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PostScrap> scraps = new ArrayList<>();
+
 
 
 }
