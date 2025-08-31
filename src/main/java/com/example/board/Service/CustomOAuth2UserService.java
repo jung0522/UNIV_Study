@@ -25,7 +25,7 @@ import java.util.Map;
 public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequest, OAuth2User> {
 
     private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider;
+//    private final JwtTokenProvider jwtTokenProvider;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -33,9 +33,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 //        String accessToken = userRequest.getAccessToken().getTokenValue();
 //        System.out.println("Access Token: " + accessToken);
 
-        // OAuth2 로그인 플랫폼 구분: google, naver, kakao 등
+        // registrationId: 어떤 서비스로 로그인했는지 (google, kakao, naver …)
         String registrationId = userRequest.getClientRegistration().getRegistrationId(); // google, naver, kakao
-        // 기본 OAuth2UserService를 통해 사용자 정보 조회
+        // oAuth2User 객체 안에는 getAttributes()로 사용자 정보(Map 구조)
         OAuth2User oAuth2User = new DefaultOAuth2UserService().loadUser(userRequest);
 
 
@@ -85,6 +85,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             // 실제 사용할 attributes를 Naver의 response로 변경
             // reponse 안에 토큰이 답겨있음
             attributes = response;
+            userNameAttributeName = "id";
+
 
 
         } else {

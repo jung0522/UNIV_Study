@@ -29,6 +29,8 @@ public class Post {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
+    // post.title()만 post만 호출해도 User 조회
+   // post.getUser().getUsername()를 호출하는 순간에야 User 테이블에서 조회함. (이게 LAZY)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
@@ -46,6 +48,9 @@ public class Post {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    // Post를 저장하거나 삭제할 때 likes에 있는 PostLike들도 함께 저장/삭제
+    //  orphanRemoval = true
+    // likes 목록에서 PostLike 객체를 제거하면, 해당 객체는 DB에서도 삭제
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PostLike> likes = new ArrayList<>();
 

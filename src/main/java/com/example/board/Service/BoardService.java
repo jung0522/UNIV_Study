@@ -16,10 +16,12 @@ public class BoardService {
     private final PostRepository postRepository;
 
     public PostDto createPost(PostDto postDto, User user) {
+        // builder는 타입.builder로
         Post post = Post.builder()
                 .title(postDto.title())
                 .content(postDto.content())
                 .user(user)
+                // build()로 마무리
                 .build();
         postRepository.save(post);
         return toDto(post);

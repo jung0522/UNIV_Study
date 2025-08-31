@@ -1,17 +1,66 @@
-<!-- src/main/resources/templates/home.html -->
+<!--&lt;!&ndash; src/main/resources/templates/home.html &ndash;&gt;-->
+<!--<!DOCTYPE html>-->
+<!--<html xmlns:th="http://www.thymeleaf.org">-->
+<!--<head>-->
+<!--    <meta charset="UTF-8">-->
+<!--    <title>Home</title>-->
+<!--</head>-->
+<!--<body>-->
+<!--<h1>회원 정보</h1>-->
+<!--<div>-->
+<!--    <p><strong>닉네임:</strong> <span th:text="${user.nickname}"></span></p>-->
+<!--    <p><strong>이메일:</strong> <span th:text="${user.email}"></span></p>-->
+<!--    <p><strong>프로필 이미지:</strong></p>-->
+<!--    <img th:src="${user.profileImage}" alt="프로필 이미지" style="width:150px;height:150px;border-radius:50%;">-->
+<!--</div>-->
+<!--</body>-->
+<!--</html>-->
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Home</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<h1>회원 정보</h1>
-<div>
-    <p><strong>닉네임:</strong> <span th:text="${user.nickname}"></span></p>
-    <p><strong>이메일:</strong> <span th:text="${user.email}"></span></p>
-    <p><strong>프로필 이미지:</strong></p>
-    <img th:src="${user.profileImage}" alt="프로필 이미지" style="width:150px;height:150px;border-radius:50%;">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+<div class="bg-white p-8 rounded-lg shadow-md w-96 text-center">
+    <h1 class="text-3xl font-bold mb-6">회원 정보</h1>
+
+    <!-- 프로필 이미지 -->
+    <div class="mb-4">
+        <img th:src="${user.profileImage}" alt="프로필 이미지"
+             class="w-36 h-36 rounded-full mx-auto mb-4 shadow-lg">
+    </div>
+
+    <!-- 회원 정보 -->
+    <div class="text-left space-y-2">
+        <p><strong class="font-semibold">닉네임:</strong> <span th:text="${user.nickname}" class="text-gray-700"></span></p>
+        <p><strong class="font-semibold">이메일:</strong> <span th:text="${user.email}" class="text-gray-700"></span></p>
+    </div>
+
+    <!-- 로그아웃 버튼 -->
+    <a href="#" onclick="logout()"
+       class="mt-6 inline-block w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 px-4 rounded">
+        로그아웃
+    </a>
 </div>
+
+<script>
+    function logout() {
+        fetch('/logout', {
+            method: 'POST',
+            credentials: 'same-origin' // 쿠키 포함
+        })
+            .then(response => {
+                if(response.ok) {
+                    // 로그아웃 성공 시 로그인 페이지 또는 홈으로 이동
+                    window.location.href = '/login';
+                } else {
+                    alert('로그아웃 실패');
+                }
+            })
+            .catch(err => console.error(err));
+    }
+</script>
 </body>
 </html>
