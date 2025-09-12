@@ -9,9 +9,6 @@ public record PostDto(
         String content,
         boolean isDeleted,
         LocalDateTime createdAt,
-        LocalDateTime updatedAt,
-        int likes,
-        int scraps
-
+        LocalDateTime updatedAt
 ) {
 }

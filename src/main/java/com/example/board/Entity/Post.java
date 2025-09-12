@@ -9,10 +9,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Entity
 @Data
@@ -47,16 +43,4 @@ public class Post {
 
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
-    // Post를 저장하거나 삭제할 때 likes에 있는 PostLike들도 함께 저장/삭제
-    //  orphanRemoval = true
-    // likes 목록에서 PostLike 객체를 제거하면, 해당 객체는 DB에서도 삭제
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostLike> likes = new ArrayList<>();
-
-    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<PostScrap> scraps = new ArrayList<>();
-
-
-
 }

@@ -3,7 +3,6 @@ package com.example.board.security;
 import com.example.board.config.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,45 +37,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (token != null && jwtTokenProvider.validateToken(token)) {
             String email = jwtTokenProvider.getEmailFromToken(token);
 
-            // UserDetailsService 사용
-            UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
+            // UserDetailsService 사용 - CustomUserDetails로 캐스팅
+            CustomUserDetails customUserDetails = (CustomUserDetails) customUserDetailsService.loadUserByUsername(email);
 
             // 인증 객체 생성 및 SecurityContext에 저장
-            // 인증 객체 생성: 사용자 정보를 기반으로 UsernamePasswordAuthenticationToken 객체 생성
-            // 첫 번째 인자: 인증된 사용자 정보 (UserDetails)
-            // 두 번째 인자: 자격 증명 (OAuth2의 경우 비밀번호가 없으므로 null)
-            // 세 번째 인자: 사용자 권한 목록
             UsernamePasswordAuthenticationToken auth =
-                    new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                    new UsernamePasswordAuthenticationToken(customUserDetails, null, customUserDetails.getAuthorities());
 
-            // 요청 정보를 인증 객체에 추가 (IP, 세션 ID 등 부가 정보 저장)
-            // WebAuthenticationDetailsSource는 현재 요청(request)로부터 상세 정보를 추출해 설정
+            // 요청 정보를 인증 객체에 추가
             auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-
 
             // 생성한 인증 객체를 SecurityContext에 저장하여 인증 상태로 만듦
             SecurityContextHolder.getContext().setAuthentication(auth);
-
         }
 
         // 다음 필터 실행
         filterChain.doFilter(request, response);
     }
 
-    // HTTP 요청 헤더 또는 쿠키에서 JWT 토큰 추출
+    // HTTP 요청 헤더에서 JWT 토큰 추출 (RESTful API 방식)
     private String resolveToken(HttpServletRequest request) {
+        // Authorization 헤더에서 Bearer 토큰 추출
         String bearerToken = request.getHeader("Authorization");
         if (StringUtils.hasText(bearerToken) && bearerToken.startsWith("Bearer ")) {
             return bearerToken.substring(7);
-        }
-
-        // 쿠키에서 accessToken 추출
-        if (request.getCookies() != null) {
-            for (Cookie cookie : request.getCookies()) {
-                if ("accessToken".equals(cookie.getName())) {
-                    return cookie.getValue();
-                }
-            }
         }
 
         return null;

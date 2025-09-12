@@ -22,6 +22,12 @@ public class CustomOAuth2User implements OAuth2User {
 
     // 사용자 이메일 (Spring Security에서 사용자 식별자로 사용)
     private final String email;
+    
+    // 사용자 닉네임
+    private final String nickname;
+    
+    // 사용자 프로필 이미지
+    private final String profileImage;
 
     /**
      * 사용자 속성 반환 (이름, 이메일, 프로필 이미지 등)
@@ -41,10 +47,31 @@ public class CustomOAuth2User implements OAuth2User {
 
     /**
      * 사용자의 고유 식별자 반환 (Spring Security의 Authentication.getName()에서 사용됨)
-     * 여기서는 email을 사용자 식별자로 사용함.
+     * 여기서는 email을 사용자 이름(식별자)으로 반환
      */
     @Override
     public String getName() {
         return email; // ★ 여기서 이메일을 사용자 이름(식별자)으로 반환
+    }
+    
+    /**
+     * 사용자 이메일 반환
+     */
+    public String getEmail() {
+        return email;
+    }
+    
+    /**
+     * 사용자 닉네임 반환
+     */
+    public String getNickname() {
+        return nickname;
+    }
+    
+    /**
+     * 사용자 프로필 이미지 반환
+     */
+    public String getPicture() {
+        return profileImage;
     }
 }

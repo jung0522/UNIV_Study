@@ -71,6 +71,11 @@ public class JwtTokenProvider {
         return "RT:" + email;
     }
 
+    // Blacklist key 구조
+    private String getBlacklistKey(String token) {
+        return "BL:" + token;
+    }
+
     // 토큰에서 이메일 추출
     public String getEmailFromToken(String token) {
         return Jwts.parserBuilder()
@@ -81,9 +86,15 @@ public class JwtTokenProvider {
                 .getSubject();
     }
 
-    // 토큰 유효성 검증 (서명)
+    // 토큰 유효성 검증 (서명 + Blacklist 체크)
     public boolean validateToken(String token) {
         try {
+            // 1. Blacklist 체크
+            if (isTokenBlacklisted(token)) {
+                return false;
+            }
+            
+            // 2. JWT 서명 및 만료 검증
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token);
             return true;
         } catch (ExpiredJwtException e) {
@@ -122,5 +133,39 @@ public class JwtTokenProvider {
     public void deleteRefreshToken(String email) {
         String redisKey = getRedisKey(email);
         redisTemplate.delete(redisKey);
+    }
+
+    // 리프레시 토큰을 Redis에 저장
+    public void saveRefreshToken(String email, String refreshToken) {
+        String redisKey = getRedisKey(email);
+        redisTemplate.opsForValue().set(redisKey, refreshToken, REFRESH_TOKEN_VALIDITY, TimeUnit.MILLISECONDS);
+    }
+
+    // 토큰을 Blacklist에 추가
+    public void addTokenToBlacklist(String token) {
+        try {
+            // 토큰에서 만료 시간 추출
+            Claims claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody();
+            
+            Date expiration = claims.getExpiration();
+            long ttl = expiration.getTime() - System.currentTimeMillis();
+            
+            if (ttl > 0) {
+                String blacklistKey = getBlacklistKey(token);
+                redisTemplate.opsForValue().set(blacklistKey, "blacklisted", ttl, TimeUnit.MILLISECONDS);
+            }
+        } catch (JwtException e) {
+            // 토큰이 이미 만료되었거나 유효하지 않은 경우 무시
+        }
+    }
+
+    // 토큰이 Blacklist에 있는지 확인
+    public boolean isTokenBlacklisted(String token) {
+        String blacklistKey = getBlacklistKey(token);
+        return redisTemplate.hasKey(blacklistKey);
     }
 }
