@@ -29,22 +29,33 @@ public class BoardService {
 
 
     public List<PostDto> getAllPosts() {
-        return postRepository.findAll()
+        return postRepository.findAllByIsDeletedFalseOrderByCreatedAtDesc()
                 .stream()
                 .map(post -> toDto(post))
                 .collect(Collectors.toList());
-
     }
 
     public PostDto getPostById(Long id) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
+        
+        // 삭제된 게시글인지 확인
+        if (post.isDeleted()) {
+            throw new RuntimeException("삭제된 게시글입니다.");
+        }
+        
         return toDto(post);
     }
 
     public PostDto updatePost(Long id, PostDto postDto, User user) {
         Post post = postRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
+        
+        // 삭제된 게시글인지 확인
+        if (post.isDeleted()) {
+            throw new RuntimeException("삭제된 게시글은 수정할 수 없습니다.");
+        }
+        
         Post updatedPost = post.toBuilder()
                 .title(postDto.title())
                 .content(postDto.content())
@@ -66,8 +77,6 @@ public class BoardService {
     }
 
     private PostDto toDto(Post post) {
-        int likeCount = post.getLikes() == null ? 0 : post.getLikes().size();
-        int scrapCount = post.getScraps() == null ? 0 : post.getScraps().size();
         return new PostDto(
                 post.getId(),
                 post.getUser().getNickname(), // postDto 레코드의 Sting author
@@ -75,9 +84,7 @@ public class BoardService {
                 post.getContent(),
                 post.isDeleted(),
                 post.getCreatedAt(),
-                post.getUpdatedAt(),
-                likeCount,
-                scrapCount
+                post.getUpdatedAt()
         );
     }
 }
